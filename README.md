@@ -1,4 +1,4 @@
-# app
+# Studio Ghibli Search Application using Vue
 
 ## Project setup
 ```
