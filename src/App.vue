@@ -2,10 +2,10 @@
     <div id="app">
         <div class="top ui">
             <h2>{{title}}</h2>
-            <div class="dropdown">
-                <input v-model="searchValue" placeholder="Search Films" type="text" :change="search" class="search-entry user-enter" @click="showOptions()" />
-                <input tableindex="100" type="text" :placeholder="predictiveText" class="search-entry predictive">
-                <div class="dropdown-content" v-show="optionsShown === true" role="menu">
+            <div class="dropdown" tabindex="-1">
+                <input tabindex="-1" v-model="searchValue" placeholder="Search Films" type="text" :change="search" class="search-entry user-enter" @click="showOptions()" @keyup.enter="selectOption(searchValue)" autocomplete="on"/>
+                <input tabindex="-1" type="text" :placeholder="predictiveText" class="search-entry predictive">
+                <div class="dropdown-content" v-show="optionsShown === true" role="menu" tabindex="-1">
                     <a href="#" tabindex="0" class="dropdown-item" :aria-labelledby="item"   @keyup.enter="selectOption(item)" @mousedown="selectOption(item)" v-for="(item, index) in search" :key="index">{{item}}</a>
                 </div> 
             </div>
@@ -40,14 +40,12 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="place-holder" v-show="Object.keys(selected).length <= 0">
-                    Please Select a Studio Ghibli Movie.
-                </div> -->
             </div>
         </div>
         <div class="footer">
-            <small>Created by: {{creator}}</small>
-            <br>
+            <div class="wrapper">
+                 <a class="effect-box">EmptyBox</a>            
+            </div>
             <a :href="attributionLink">{{attribution}}</a>
         </div>
     </div>
@@ -108,7 +106,8 @@ export default {
             let self = this;
             // localize search value for function
             let searchTerm = this.searchValue;
-            // check to ensure string has at least one character
+            // check to ensure string has at least one character;
+            let characterMatch = 3;
             if(searchTerm.length > 0){
                 // filter existing data
                 return this.films.filter(function(term){
@@ -118,14 +117,15 @@ export default {
                     if(match  > -1){
                         // see if user input matches at least the first 5 letters of the match. 
                         // if it does prefill search bar
-                        let t = term.toUpperCase().substring(0, 5);
-                        let s = searchTerm.toUpperCase().substring(0, 5);
-
-                        if(t === s){
-                            self.predictiveReturn = term;
-                        }else{
-                            self.predictiveReturn = "";
-                        }
+                        // let t = term.toUpperCase().substring(0, characterMatch);
+                        // let s = searchTerm.toUpperCase().substring(0, characterMatch);
+                        
+                        // if(t === s){
+                        //     console.log("great match")
+                        //     self.predictiveReturn = term;
+                        // }else{
+                        //     self.predictiveReturn = "";
+                        // }
                         // return if any character matches. This also works for character groups
                         return term;
                     }
@@ -154,6 +154,12 @@ export default {
             this.predictiveReturn = "";
             this.showFilmData(item);
         },
+        // todo - predictive text entry to auto fill based on character match and then send to filter
+        // selectTab: function(searchValue){
+        //     console.log('TAB:', searchValue);
+        //     this.searchValue = this.predictiveReturn;
+        //     this.selectOption(this.predictiveReturn);
+        // },
         // matches film to selected input term from the search bar.
         showFilmData: function(filmName){
             const self = this;
@@ -163,9 +169,6 @@ export default {
                 }
             });
         }
-    },
-    mounted(){
-
     }
 }
 </script>
@@ -220,13 +223,19 @@ body{
 
         &.dashboard{
             position: absolute;
-            top: 12rem;
+            top: 15rem;
             justify-content: space-around;
             width: 50vw;
             padding: 15px;
 
             border-radius: 15px;
             transition: all .3s;
+
+            @media only screen and (min-width : 320px) {
+                &.dashboard{
+                    top: 17rem;
+                }
+            }
         }
         &.top{
             position: absolute;
@@ -242,7 +251,7 @@ body{
     }
     .footer{
         position: absolute;
-        bottom: $spacing-md;
+        bottom: $spacing-sm;
         margin: auto;
         text-align: center;
         font-size: $font-sm;
@@ -271,10 +280,8 @@ body{
         font-size: $font-lg;
 
         background: transparent;
-
+        border: 1px solid $grey;
         &.user-enter{
-            border: 1px solid $grey;
-            // background-color: $grey;
             outline-color: $accent;
             z-index: 1;
         }
@@ -284,7 +291,7 @@ body{
             pointer-events: none;
             user-select: none;
             opacity: 0.4;
-            border: none;
+            border-color: none;
             outline: none;
             z-index: 0;
         }
@@ -305,8 +312,8 @@ body{
         background: $grey;
         
         .dropdown-item{
-            padding: 10px;
-            margin-left: 7px;
+            padding: 5px;
+            margin: 5px 0px 5px 7px;
             color: white;
             
             cursor: pointer;
@@ -347,8 +354,22 @@ body{
             letter-spacing: 2px;
         }
         &.description{
-            max-height: 10em;
             overflow-y: auto;
+        }
+        @media only screen and (min-width : 320px) {
+            &.description{
+                max-height: 10em;
+            }
+        }
+        @media only screen and (min-width : 480px) {
+            &.description{
+                max-height: 10em;
+            }
+        }    
+        @media only screen and (min-width : 768px) {
+            &.description{
+                max-height: 10em;
+            }
         }
         &.date{
             font-size: $font-sm;
@@ -363,6 +384,45 @@ body{
             .far{
                 fill: $accent;
             }
+        }
+    }
+    //EMPTYBOX ANIMATION
+    a.effect-box:hover:after,
+    a.effect-box:hover:before {
+        opacity: 1;
+        transform: scale(1);
+    }
+    a{
+        color: $accent;
+        transition: 0.3s;
+        font-size: $font-sm;
+        &:after,
+        &:before {
+            content: '';
+            position: absolute;
+            left: calc(100px - 25%);
+            display: inline-block;
+            height: 1.2rem;
+            width: 100px;
+            opacity: 0;
+            transition: opacity 0.35s, transform 0.35s;
+
+            &:hover,&:active{
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        &:before {
+            border-left: 1px solid $accent;
+            border-right: 1px solid $accent;
+            -webkit-transform: scale(1,0);
+            transform: scale(1,0);
+        }
+        &:after {
+            border-bottom: 1px solid $accent;
+            border-top: 1px solid $accent;
+            -webkit-transform: scale(0,1);
+            transform: scale(0,1);
         }
     }
 }
